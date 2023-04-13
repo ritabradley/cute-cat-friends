@@ -1,27 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { connect } from 'react-redux';
 import CardList from '../components/CardList';
 import SearchBar from '../components/SearchBar';
 import Scroll from '../components/Scroll';
 import ErrorBoundary from '../components/ErrorBoundary';
-import { setSearchTerm } from '../actions';
+import { setSearchTerm, requestCats } from '../actions';
 
-function App({ searchTerm, onSearchChange }) {
-    const [cats, setCats] = useState([]);
-
+function App({ searchTerm, onSearchChange, cats, onRequestCats, isPending }) {
     useEffect(() => {
-        fetch('https://jsonplaceholder.typicode.com/users')
-            .then((response) => response.json())
-            .then((users) => {
-                setCats(users);
-            });
+        onRequestCats();
     }, []);
 
     const filteredCats = cats.filter((cat) => {
         return cat.name.toLowerCase().includes(searchTerm.toLowerCase());
     });
 
-    return !cats.length ? (
+    return isPending ? (
         <h1>Loading...</h1>
     ) : (
         <div className='mt-5 text-center font-sans'>
@@ -40,13 +34,17 @@ function App({ searchTerm, onSearchChange }) {
 
 const mapStateToProps = (state) => {
     return {
-        searchTerm: state.searchTerm,
+        searchTerm: state.searchCats.searchTerm,
+        cats: state.requestCats.cats,
+        isPending: state.requestCats.isPending,
+        error: state.requestCats.error,
     };
 };
 
 const mapDispatchToProps = (dispatch) => {
     return {
         onSearchChange: (event) => dispatch(setSearchTerm(event.target.value)),
+        onRequestCats: () => dispatch(requestCats()),
     };
 };
 
