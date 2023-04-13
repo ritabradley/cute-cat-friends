@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
+import { connect } from 'react-redux';
 import CardList from '../components/CardList';
 import SearchBar from '../components/SearchBar';
 import Scroll from '../components/Scroll';
 import ErrorBoundary from '../components/ErrorBoundary';
+import { setSearchTerm } from '../actions';
 
-function App() {
+function App({ searchTerm, onSearchChange }) {
     const [cats, setCats] = useState([]);
-    const [searchField, setSearchField] = useState('');
 
     useEffect(() => {
         fetch('https://jsonplaceholder.typicode.com/users')
@@ -16,12 +17,8 @@ function App() {
             });
     }, []);
 
-    const onSearchChange = (event) => {
-        setSearchField(event.target.value);
-    };
-
     const filteredCats = cats.filter((cat) => {
-        return cat.name.toLowerCase().includes(searchField.toLowerCase());
+        return cat.name.toLowerCase().includes(searchTerm.toLowerCase());
     });
 
     return !cats.length ? (
@@ -41,4 +38,16 @@ function App() {
     );
 }
 
-export default App;
+const mapStateToProps = (state) => {
+    return {
+        searchTerm: state.searchTerm,
+    };
+};
+
+const mapDispatchToProps = (dispatch) => {
+    return {
+        onSearchChange: (event) => dispatch(setSearchTerm(event.target.value)),
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
