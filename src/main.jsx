@@ -1,12 +1,16 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { createStore } from 'redux';
+import { applyMiddleware, createStore } from 'redux';
+import { composeWithDevTools } from 'redux-devtools-extension';
+import { createLogger } from 'redux-logger';
 import { searchCats } from './reducers';
 import { Provider } from 'react-redux';
 import App from './containers/App';
 import './index.css';
 
-const store = createStore(searchCats);
+const logger = createLogger();
+
+const store = createStore(searchCats, composeWithDevTools(applyMiddleware(logger)));
 createRoot(document.getElementById('root')).render(
     <React.StrictMode>
         <Provider store={store}>
